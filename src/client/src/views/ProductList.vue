@@ -15,7 +15,7 @@
       <div class="row g-3">
         <div class="col-xl-3 col-lg-4 col-md-6" :key="i" v-for="(product, i) in productList">
           <div class="card" style="width: 18rem">
-            <a href="product_detail.html"><img :src="product.path" class="card-img-top" alt="..." /></a>
+            <a @click="goToDetail(product.id)"><img :src="product.path" class="card-img-top" alt="..." /></a>
             <div class="card-body">
               <h5 class="card-title">{{ product.product_name }}</h5>
               <p class="card-text">
@@ -55,6 +55,9 @@ export default {
   methods: {
     async getProductList() {
       this.productList = await this.$api('/api/productList', {})
+    },
+    async goToDetail(product_id) {
+      this.$router.push({ path: '/detail', query: { product_id: product_id } })
     }
   }
 }

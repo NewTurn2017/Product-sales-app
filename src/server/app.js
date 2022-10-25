@@ -15,6 +15,12 @@ app.use(
   })
 )
 
+app.use(
+  express.json({
+    limit: '50mb',
+  })
+)
+
 const server = app.listen(3000, () => {
   console.log('Server started, port 3000.')
 })
@@ -48,12 +54,8 @@ app.post('/api/logout', async (req, res) => {
 
 let sql = require('./sql.js')
 app.post('/api/:alias', async (req, res) => {
-  // if (!req.secure.email) {
-  //   return res.status(401).send({ error: 'You need to Login.' })
-  // }
-
   try {
-    res.send(await request.db(req.params.alias))
+    res.send(await request.db(req.params.alias, req.body.param))
   } catch (err) {
     res.status(500).send({
       error: err,
