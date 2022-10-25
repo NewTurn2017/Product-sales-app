@@ -10,14 +10,8 @@
               <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
             </div>
             <div class="carousel-inner">
-              <div class="carousel-item active">
-                <img src="http://image.auction.co.kr/itemimage/28/9a/31/289a31f586.jpg" class="d-block w-100" alt="..." />
-              </div>
-              <div class="carousel-item">
-                <img src="http://image.auction.co.kr/itemimage/29/0a/57/290a5791d1.jpg" class="d-block w-100" alt="..." />
-              </div>
-              <div class="carousel-item">
-                <img src="http://image.auction.co.kr/itemimage/29/0a/57/290a579241.jpg" class="d-block w-100" alt="..." />
+              <div :class="`carousel-item ${i == 0 ? 'active' : ''}`" :key="i" v-for="(pimg, i) in productImage">
+                <img :src="pimg.path" class="d-block w-100" alt="..." />
               </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -33,14 +27,18 @@
         <div class="col-md-7">
           <div class="card shadow-sm">
             <div class="card-body">
-              <h5 class="card-title">삼성전자 비스포크 MS23T5018AW 전국배송/SY</h5>
-              <h5 class="card-title pt-3 pb-3 border-top">219,000 원</h5>
+              <h5 class="card-title">{{ productDetail.product_name }}</h5>
+              <h5 class="card-title pt-3 pb-3 border-top">{{ $currencyFormat(productDetail.product_price) }} 원</h5>
               <p class="card-text pt-3 border-top">
-                <span class="badge bg-dark">전자제품</span>
-                <span class="badge bg-dark">가전</span>
+                <span class="badge bg-dark me-1">{{ productDetail.category1 }}</span>
+                <span class="badge bg-dark me-1">{{ productDetail.category2 }}</span>
+                <span class="badge bg-dark">{{ productDetail.category3 }}</span>
               </p>
 
-              <p class="card-text pb-3">배송비 2,500원 | 도서산관(제주도) 배송비 추가 5,000원 | 택배배송 | 5일 이내 출고 (주말, 공휴일 제외)</p>
+              <p class="card-text pb-3">
+                배송비 {{ $currencyFormat(productDetail.delivery_price) }}원 | 도서산관(제주도) 배송비 추가 {{ $currencyFormat(productDetail.add_delivery_price) }}원 | 택배배송 |
+                {{ productDetail.outbound_days }}일 이내 출고 (주말, 공휴일 제외)
+              </p>
 
               <div class="card-text pt-3 border-top pb-3">
                 <div class="row">
@@ -49,9 +47,9 @@
                   </div>
                   <div class="col-auto">
                     <div class="input-group">
-                      <span class="input-group-text">-</span>
-                      <input type="text" class="form-control" style="width: 40px" value="1" />
-                      <span class="input-group-text">+</span>
+                      <span @click="calculatePrice(-1)" class="input-group-text" style="cursor: pointer">-</span>
+                      <input type="text" class="form-control" style="width: 40px" v-model="total" />
+                      <span @click="calculatePrice(+1)" class="input-group-text" style="cursor: pointer">+</span>
                     </div>
                   </div>
                 </div>
@@ -62,7 +60,7 @@
                   <h3>총 상품 금액</h3>
                 </div>
                 <div class="col-6" style="text-align: right">
-                  <h3>219,000 원</h3>
+                  <h3>{{ $currencyFormat(productDetail.product_price * total) }} 원</h3>
                 </div>
               </div>
               <div class="d-flex justify-content-between align-items-center">
@@ -79,7 +77,7 @@
       </div>
       <div class="row">
         <div class="col-12">
-          <img src="https://ai.esmplus.com/zmshy1/COX/%EC%83%81%ED%92%88%20DB/CY104_DB.jpg" class="img-fluid" />
+          <img :src="productDetail.path" class="img-fluid" />
         </div>
       </div>
     </div>
@@ -91,8 +89,9 @@ export default {
   data() {
     return {
       product_id: 0,
-      productDetail: [],
-      productImage: []
+      productDetail: {},
+      productImage: [],
+      total: 1
     }
   },
   setup() {},
@@ -105,10 +104,19 @@ export default {
   unmounted() {},
   methods: {
     async getProductDetail() {
-      this.productDetail = await this.$api('/api/productDetail', { param: [this.product_id] })
+      let productDetail = await this.$api('/api/productDetail', { param: [this.product_id] })
+      if (productDetail.length > 0) {
+        this.productDetail = productDetail[0]
+      }
     },
     async getProductImage() {
-      this.productImage = await this.$api('/api/productMainImages', { param: [this.product_id] })
+      this.productImage = await this.$api('/api/productMainImage', { param: [this.product_id] })
+    },
+    calculatePrice(value) {
+      if (this.total === 1 && value === -1) {
+        return
+      }
+      this.total += value
     }
   }
 }
