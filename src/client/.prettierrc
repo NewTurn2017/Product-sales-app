@@ -4,7 +4,7 @@
   "singleQuote": true,
   "useTabs": false,
   "trailingComma": "none",
-  "printWidth": 80,
+  "printWidth": 200,
   "multiline": {
     "max": 1,
     "allowFirstLine": true
