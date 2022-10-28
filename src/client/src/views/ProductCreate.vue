@@ -130,93 +130,99 @@ export default {
   },
   unmounted() {},
   methods: {
+    goToList() {
+      this.$router.push({ path: '/sales' })
+    },
     async getCategoryList() {
-      let categoryList = await this.$api('api/categoryList', {})
+      let categoryList = await this.$api('/api/categoryList', {})
       this.categoryList = categoryList
 
       let oCategory = {}
       categoryList.forEach((item) => {
         oCategory[item.category1] = item.id
       })
-
       let category1 = []
       for (let key in oCategory) {
         category1.push(key)
       }
-
       this.category1 = category1
-
       let category2 = []
       category2 = categoryList.filter((c) => {
         return c.category1 == category1[0]
       })
-
       let oCategory2 = {}
       category2.forEach((item) => {
         oCategory2[item.category2] = item.id
       })
-
       category2 = []
       for (let key in oCategory2) {
         category2.push(key)
       }
-
       this.category2 = category2
-    }
-  },
-  changeCategory1() {
-    let categoryList = this.categoryList.filter((c) => {
-      return c.category1 == this.cate1
-    })
-
-    let oCategory2 = {}
-    categoryList.forEach((item) => {
-      oCategory2[item.category2] = item.id
-    })
-
-    let category2 = []
-    for (let key in oCategory2) {
-      category2.push(key)
-    }
-
-    this.category2 = category2
-  },
-  chageCategory2() {},
-  chageCategory3() {},
-  goToList() {
-    this.$router.push({ path: '/sales' })
-  },
-  async productInsert() {
-    if (this.product.product_name == '') {
-      return this.$swal('제품명은 필수 입력값입니다.')
-    }
-
-    if (this.product.product_price == 0 || this.product.product_price == '') {
-      return this.$swal('제품 가격을 입력하세요.')
-    }
-
-    if (this.product.delivery_price == 0 || this.product.delivery_price == '') {
-      return this.$swal('배송료를 가격을 입력하세요.')
-    }
-
-    if (this.product.outbound_days == 0 || this.product.outbound_days == '') {
-      return this.$swal('출고일을 입력하세요.')
-    }
-
-    this.$swal
-      .fire({
-        title: '정말 등록 하시겠습니까?',
-        showCancelButton: true,
-        confirmButtonText: '생성',
-        cancelButtonText: '취소'
+      // console.log(category2);
+    },
+    changeCategory1() {
+      // this.cate1
+      this.category3 = []
+      let categoryList = this.categoryList.filter((c) => {
+        return c.category1 == this.cate1
       })
-      .then(async (result) => {
-        if (result.isConfirmed) {
-          await this.$api('/api/productInsert', { param: [this.product] })
-          this.$swal.fire('저장되었습니다.', '', 'success')
-          this.$router.push({ path: '/sales' })
-        }
+      let oCategory2 = {}
+      categoryList.forEach((item) => {
+        oCategory2[item.category2] = item.id
       })
+      let category2 = []
+      for (let key in oCategory2) {
+        category2.push(key)
+      }
+      this.category2 = category2
+    },
+    changeCategory2() {
+      let categoryList = this.categoryList.filter((c) => {
+        return c.category1 == this.cate1 && c.category2 == this.cate2
+      })
+      let oCategory3 = {}
+      categoryList.forEach((item) => {
+        oCategory3[item.category3] = item.id
+      })
+      let category3 = []
+      for (let key in oCategory3) {
+        category3.push(key)
+      }
+      this.category3 = category3
+    },
+    productInsert() {
+      if (this.product.product_name == '') {
+        return this.$swal('제품명은 필수 입력값입니다.')
+      }
+      if (this.product.product_price == '' || this.product.product_price == 0) {
+        return this.$swal('제품 가격을 입력하세요.')
+      }
+      if (this.product.delivery_price == '' || this.product.delivery_price == 0) {
+        return this.$swal('배송료를 입력하세요.')
+      }
+      if (this.product.outbound_days == '' || this.product.outbound_days == 0) {
+        return this.$swal('출고일을 입력하세요.')
+      }
+      this.product.category_id = this.categoryList.filter((c) => {
+        return c.category1 == this.cate1 && c.category2 == this.cate2 && c.category3 == this.cate3
+      })[0].id
+      console.log(this.product.category_id)
+      this.$swal
+        .fire({
+          title: '정말 등록 하시겠습니까?',
+          showCancelButton: true,
+          confirmButtonText: `생성`,
+          cancelButtonText: `취소`
+        })
+        .then(async (result) => {
+          if (result.isConfirmed) {
+            await this.$api('/api/productInsert', { param: [this.product] })
+            this.$swal.fire('저장되었습니다!', '', 'success')
+            this.$router.push({ path: '/sales' })
+          }
+        })
+    }
   }
 }
 </script>
