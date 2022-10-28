@@ -17,8 +17,8 @@
     "vue-currency-filter": "^5.2.0",
     "vue-router": "^4.0.0-0",
     "vue-sweetalert2": "^4.1.1",
-    "vuex": "^4.0.0-rc.2",
-    "vuex-persistedstate": "^4.0.0-beta.3"
+    "vuex": "^4.0.2",
+    "vuex-persistedstate": "^4.1.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^5.0.8",

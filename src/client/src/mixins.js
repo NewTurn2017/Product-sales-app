@@ -13,6 +13,7 @@ export default {
         })
       ).data
     },
+    //금액에서 000,000 단위로 바꿔주는 메서드
     $currencyFormat(value, format = '#,###') {
       if (value == 0 || value == null) return 0
 

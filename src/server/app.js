@@ -34,8 +34,9 @@ fs.watchFile(__dirname + '/sql.js', (curr, prev) => {
 const db = {
   database: 'dev',
   connectionLimit: 10,
-  host: '192.168.10.43',
-  // host: '192.168.0.18',
+  // host: '192.168.0.74', //회사(부산)
+  host: '192.168.10.43', //회사(부산)
+  // host: '192.168.0.18', //집
   user: 'root',
   password: 'mariadb',
 }
@@ -43,8 +44,21 @@ const db = {
 const dbPool = require('mysql').createPool(db)
 
 app.post('/api/login', async (req, res) => {
-  req.session['email'] = 'hyuni2020@gmail.com'
-  res.send('ok')
+  try {
+    await request.db('signUp', req.body.param)
+    if (req.body.param.length > 0) {
+      for (let key in req.body.body.param[0]) {
+        req.session[key] = req.body.param[0][key]
+      }
+      res.send(req.body.param[0])
+    } else {
+      res.send({ error: 'Please try again or contanct system manager.' })
+    }
+  } catch (err) {
+    res.send({
+      error: 'DB access error!',
+    })
+  }
 })
 
 app.post('/api/logout', async (req, res) => {

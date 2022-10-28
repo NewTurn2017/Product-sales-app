@@ -25,9 +25,11 @@
             <li class="nav-item">
               <router-link class="nav-link" to="/detail">제품상세페이지</router-link>
             </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="create">제품등록페이지</router-link>
+            <li v-if="user.email != undefined" class="nav-item">
+              <router-link class="nav-link" to="/sales">제품등록페이지</router-link>
             </li>
+            <li v-if="user.email == undefined"><button class="btn btn-danger" type="button" @click="kakaoLogin">로그인</button></li>
+            <li v-else><button class="btn btn-danger" type="button" @click="kakaoLogout">로그아웃</button></li>
           </ul>
           <form class="d-flex" role="search">
             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
@@ -101,6 +103,48 @@
     </footer>
   </div>
 </template>
+
+<script>
+export default {
+  computed: {
+    user() {
+      return this.$store.state.user
+    }
+  },
+  methods: {
+    async kakaoLogin() {
+      window.Kakao.Auth.login({
+        scope: 'profile_nickname, profile_image, account_email, gender',
+        success: await this.getProfile
+      })
+    },
+    async getProfile(authObj) {
+      console.log(authObj)
+      window.Kakao.API.request({
+        url: '/v2/user/me',
+        success: (res) => {
+          const kakao_account = res.kakao_account
+          this.login(kakao_account)
+        }
+      })
+    },
+    async login(kakao_account) {
+      await this.$api('/api/login', {
+        param: [{ email: kakao_account.email, nickname: kakao_account.profile.nickname }, { nickname: kakao_account.profile.nickname }]
+      })
+      this.$store.commit('user', kakao_account)
+      alert('로그인 성공!')
+    },
+    kakaoLogout() {
+      window.Kakao.Auth.logout((res) => {
+        console.log(res)
+        this.$store.commit('user', {})
+        alert('로그아웃!')
+      })
+    }
+  }
+}
+</script>
 
 <style>
 #app {
